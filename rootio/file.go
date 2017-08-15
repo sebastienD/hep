@@ -272,13 +272,32 @@ func (f *File) writeHeader() error {
 
 	f.begin = kBEGIN
 	f.end = kBEGIN
-	err = binary.Write(f.w, binary.BigEndian, int32(f.begin))
-	if err != nil {
-		return err
+	w := NewWBufferFrom(f.w, nil, 0)
+	w.WriteI32(int32(f.begin))
+	if f.version < 1000000 { // small file
+		w.WriteI32(int32(f.end))
+		w.WriteI32(int32(f.seekfree))
+		w.WriteI32(f.nbytesfree)
+		w.WriteI32(f.nfree)
+		w.WriteI32(f.nbytesname)
+		w.WriteU8(f.units)
+		w.WriteI32(f.compression)
+		w.WriteI32(int32(f.seekinfo))
+		w.WriteI32(f.nbytesinfo)
+	} else { // large files
+		w.WriteI64(f.end)
+		w.WriteI64(f.seekfree)
+		w.WriteI32(f.nbytesfree)
+		w.WriteI32(f.nfree)
+		w.WriteI32(f.nbytesname)
+		w.WriteU8(f.units)
+		w.WriteI32(f.compression)
+		w.WriteI64(f.seekinfo)
+		w.WriteI32(f.nbytesinfo)
 	}
 	fmt.Printf("key=%v\n", k)
 
-	return nil
+	return w.err
 }
 
 func (f *File) Map() {
