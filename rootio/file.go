@@ -5,9 +5,11 @@
 package rootio
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
 
 type Reader interface {
@@ -247,9 +249,36 @@ func (f *File) readHeader() error {
 }
 
 func (f *File) writeHeader() error {
+	_, err := f.w.Write([]byte("root"))
+	if err != nil {
+		return err
+	}
+
+	err = binary.Write(f.w, binary.BigEndian, uint32(61002))
+	if err != nil {
+		return err
+	}
+
+	namelen := tstringSizeof(f.dir.Name()) + tstringSizeof(f.dir.Title())
+	nbytes := int32(namelen) + int32(f.dir.recordSize(rootVersion))
+	k := Key{
+		f: f, version: 4,
+		objlen:   nbytes,
+		datetime: time.Now(),
+		class:    "TDirectoryFile",
+		name:     f.dir.Name(),
+		title:    f.dir.Title(),
+	}
+
 	f.begin = kBEGIN
 	f.end = kBEGIN
-	panic("not implemented")
+	err = binary.Write(f.w, binary.BigEndian, int32(f.begin))
+	if err != nil {
+		return err
+	}
+	fmt.Printf("key=%v\n", k)
+
+	return nil
 }
 
 func (f *File) Map() {

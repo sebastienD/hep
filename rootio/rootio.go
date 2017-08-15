@@ -9,6 +9,8 @@ import (
 	"reflect"
 )
 
+const rootVersion = 61002
+
 //go:generate go run ./gen-code.go
 //go:generate go run ./gendata/gen-evnt-tree.go -f ./testdata/small-evnt-tree-nosplit.root
 //go:generate go run ./gendata/gen-evnt-tree.go -f ./testdata/small-evnt-tree-fullsplit.root -split=99

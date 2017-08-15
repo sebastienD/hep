@@ -55,3 +55,11 @@ func datime2time(d uint32) time.Time {
 func errorf(format string, args ...interface{}) error {
 	return fmt.Errorf(format, args...)
 }
+
+// tstringSizeof returns the size a TString will occupy in an I/O buffer.
+func tstringSizeof(s string) int {
+	if len(s) > 254 {
+		return len(s) + 1 + 4
+	}
+	return len(s) + 1
+}
