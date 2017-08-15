@@ -132,6 +132,29 @@ func NewReader(r Reader, name string) (*File, error) {
 	return f, nil
 }
 
+// Create creates the named ROOT file for writing.
+func Create(name string) (*File, error) {
+	fd, err := os.Create(name)
+	if err != nil {
+		return nil, fmt.Errorf("rootio: unable to create %q (%q)", name, err.Error())
+	}
+
+	f := &File{
+		w:      fd,
+		seeker: fd,
+		closer: fd,
+		id:     name,
+	}
+	f.dir = tdirectory{named: tnamed{name: name}, file: f}
+
+	err = f.writeHeader()
+	if err != nil {
+		return nil, fmt.Errorf("rootio: failed to write header %q: %v", name, err)
+	}
+
+	return f, nil
+}
+
 // Read implements io.Reader
 func (f *File) Read(p []byte) (int, error) {
 	return f.r.Read(p)
@@ -221,6 +244,12 @@ func (f *File) readHeader() error {
 	}
 
 	return nil
+}
+
+func (f *File) writeHeader() error {
+	f.begin = kBEGIN
+	f.end = kBEGIN
+	panic("not implemented")
 }
 
 func (f *File) Map() {
