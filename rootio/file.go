@@ -272,6 +272,16 @@ func (f *File) writeHeader() error {
 
 	f.begin = kBEGIN
 	f.end = kBEGIN
+	if true {
+		f.end = 403
+		f.seekfree = 349
+		f.nbytesfree = 54
+		f.units = 4
+		f.compression = 1
+		f.seekinfo = 216
+		f.nbytesinfo = 85
+	}
+
 	w := NewWBufferFrom(f.w, nil, 0)
 	w.WriteI32(int32(f.begin))
 	if f.version < 1000000 { // small file
@@ -295,6 +305,8 @@ func (f *File) writeHeader() error {
 		w.WriteI64(f.seekinfo)
 		w.WriteI32(f.nbytesinfo)
 	}
+	w.write(f.uuid[:])
+
 	fmt.Printf("key=%v\n", k)
 
 	return w.err
