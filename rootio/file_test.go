@@ -117,3 +117,15 @@ func TestFileOpenStreamerInfo(t *testing.T) {
 		_ = f.StreamerInfo()
 	}
 }
+
+func TestCreate(t *testing.T) {
+	f, err := Create("testdata/empty.root")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		t.Fatalf("error closing empty file: %v", err)
+	}
+}
